@@ -1,0 +1,16 @@
+{
+  "KPackageStructure": "Plasma/LayoutTemplate",
+  "KPlugin": {
+    "Authors": [{ "Email": "floatos-project@users.noreply.github.com", "Name": "FloatOS Project" }],
+    "Category": "Panel",
+    "Description": "FloatOS top status bar and centered floating dock",
+    "EnabledByDefault": true,
+    "Icon": "preferences-desktop",
+    "Id": "org.floatos.plasma.floatosPanels",
+    "License": "MIT",
+    "Name": "FloatOS Panels",
+    "Version": "1.0"
+  },
+  "X-Plasma-ContainmentCategories": ["panel"],
+  "X-Plasma-Shell": "plasmashell"
+}
