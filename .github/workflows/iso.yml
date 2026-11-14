@@ -1,6 +1,16 @@
 name: Build FloatOS ISO
 
 on:
+  # Build an ISO automatically after the FloatOS image is successfully published to main.
+  workflow_run:
+    workflows: ["bluebuild"]
+    types: [completed]
+    branches: [main]
+  # Also run when this workflow file is changed on main.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/iso.yml"
   workflow_dispatch:
     inputs:
       image_tag:
@@ -15,6 +25,12 @@ permissions:
 
 jobs:
   build-iso:
+    if: >-
+      ${{ github.event_name == 'push' ||
+          github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'workflow_run' &&
+           github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.head_branch == 'main') }}
     name: Generate FloatOS installer ISO
     runs-on: ubuntu-latest
     timeout-minutes: 120
@@ -42,7 +58,7 @@ jobs:
 
       - name: Generate installer ISO
         env:
-          IMAGE_TAG: ${{ inputs.image_tag }}
+          IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag || 'latest' }}
         run: |
           set -euo pipefail
           if [[ ! "$IMAGE_TAG" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; then
@@ -73,5 +89,5 @@ jobs:
             iso-out/*.iso
             iso-out/*.sha256
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
           compression-level: 0
