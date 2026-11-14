@@ -27,6 +27,7 @@ modules:
         - starship
         - papirus-icon-theme
         - papirus-icon-theme-dark
+        - plymouth-plugin-script
     remove:
       packages:
         # example: removing firefox (in favor of the flatpak)
@@ -54,3 +55,6 @@ modules:
       HOME_URL: "https://github.com/priyankasomepalli19-alt/floatos"
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
+
+  # Rebuild the initramfs after installing the FloatOS Plymouth theme.
+  - type: initramfs

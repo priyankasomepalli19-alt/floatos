@@ -1,0 +1,77 @@
+name: Build FloatOS ISO
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Published GHCR image tag to install (use latest after the main build succeeds)"
+        required: true
+        default: "latest"
+        type: string
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build-iso:
+    name: Generate FloatOS installer ISO
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Install pinned BlueBuild CLI
+        env:
+          BLUEBUILD_VERSION: v0.9.42
+        run: |
+          set -euo pipefail
+          installer="ghcr.io/blue-build/cli:${BLUEBUILD_VERSION}-installer"
+          sudo docker pull "$installer"
+          sudo docker create --name bluebuild-installer "$installer"
+          sudo docker cp bluebuild-installer:/out/bluebuild /usr/local/bin/bluebuild
+          sudo docker rm bluebuild-installer
+          sudo chmod 0755 /usr/local/bin/bluebuild
+          bluebuild --version
+
+      - name: Authenticate to GitHub Container Registry
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | sudo docker login ghcr.io \
+            --username "$GITHUB_ACTOR" --password-stdin
+
+      - name: Generate installer ISO
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$IMAGE_TAG" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; then
+            echo "Invalid image tag."
+            exit 1
+          fi
+
+          image_ref="ghcr.io/${GITHUB_REPOSITORY,,}:${IMAGE_TAG}"
+          iso_name="FloatOS-${IMAGE_TAG}-x86_64.iso"
+
+          mkdir -p iso-out
+          echo "Building installer for ${image_ref}"
+          sudo bluebuild generate-iso \
+            --variant kinoite \
+            --output-dir iso-out \
+            --iso-name "$iso_name" \
+            image "$image_ref"
+
+          test -s "iso-out/$iso_name"
+          sha256sum "iso-out/$iso_name" > "iso-out/$iso_name.sha256"
+          ls -lh "iso-out/$iso_name"
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FloatOS-Installer-ISO
+          path: |
+            iso-out/*.iso
+            iso-out/*.sha256
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
