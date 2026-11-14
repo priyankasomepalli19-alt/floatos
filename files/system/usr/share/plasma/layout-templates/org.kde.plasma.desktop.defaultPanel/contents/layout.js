@@ -67,7 +67,7 @@ if (tasks) {
     tasks.currentConfigGroup = ["General"];
     tasks.writeConfig(
         "launchers",
-        "applications:org.kde.dolphin.desktop,applications:org.kde.konsole.desktop,applications:com.valvesoftware.Steam.desktop,applications:org.kde.discover.desktop,applications:systemsettings.desktop"
+        "preferred://browser,applications:steam.desktop,applications:net.lutris.Lutris.desktop,applications:org.kde.konsole.desktop,applications:io.github.kolunmi.Bazaar.desktop,preferred://filemanager,applications:systemsettings.desktop"
     );
     tasks.writeConfig("maxStripes", "1");
     tasks.writeConfig("showOnlyCurrentDesktop", "false");
