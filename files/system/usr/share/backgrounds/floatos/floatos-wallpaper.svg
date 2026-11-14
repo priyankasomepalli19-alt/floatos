@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#090c09"/>
+      <stop offset="0.55" stop-color="#111711"/>
+      <stop offset="1" stop-color="#070907"/>
+    </linearGradient>
+    <radialGradient id="orb" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#a6ff4d" stop-opacity=".20"/>
+      <stop offset=".45" stop-color="#a6ff4d" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#a6ff4d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a6ff4d" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#a6ff4d" stop-opacity=".05"/>
+    </linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="46"/></filter>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <circle cx="1300" cy="460" r="460" fill="url(#orb)" filter="url(#blur)"/>
+  <g fill="none" stroke-linecap="round">
+    <circle cx="1300" cy="460" r="330" stroke="#a6ff4d" stroke-opacity=".08" stroke-width="1.5"/>
+    <circle cx="1300" cy="460" r="265" stroke="#a6ff4d" stroke-opacity=".12" stroke-width="1.5"/>
+    <circle cx="1300" cy="460" r="200" stroke="url(#line)" stroke-width="2"/>
+    <path d="M1020 620 A330 330 0 0 1 1580 240" stroke="#a6ff4d" stroke-opacity=".28" stroke-width="2"/>
+    <path d="M1090 740 A420 420 0 0 0 1700 270" stroke="#a6ff4d" stroke-opacity=".10" stroke-width="1"/>
+    <path d="M1300 120 V800 M960 460 H1640" stroke="#a6ff4d" stroke-opacity=".05" stroke-width="1"/>
+  </g>
+  <circle cx="1300" cy="130" r="5" fill="#a6ff4d"/>
+  <circle cx="1580" cy="460" r="4" fill="#a6ff4d" fill-opacity=".65"/>
+  <circle cx="1300" cy="460" r="8" fill="#a6ff4d" fill-opacity=".9"/>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="150" y="770" fill="#f1f5eb" font-size="88" font-weight="600" letter-spacing="-3">FloatOS</text>
+    <rect x="154" y="812" width="72" height="5" rx="2.5" fill="#a6ff4d"/>
+    <text x="150" y="865" fill="#aab4a2" font-size="24" letter-spacing="5">A DESKTOP THAT FLOWS</text>
+  </g>
+  <path d="M0 1010 H1920" stroke="#a6ff4d" stroke-opacity=".08"/>
+</svg>
