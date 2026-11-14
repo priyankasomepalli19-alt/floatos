@@ -3,11 +3,11 @@
 # image will be published to ghcr.io/<user>/<name>
 name: floatos
 # description will be included in the image's metadata
-description: This is my personal OS image.
+description: FloatOS is a custom Bazzite-based Linux desktop with a gaming-friendly KDE foundation.
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/silverblue-main
-image-version: latest # You can pin to a specific version of Fedora as well
+base-image: ghcr.io/ublue-os/bazzite
+image-version: stable # Track the stable Bazzite desktop image
 
 # module configuration, executed in order
 # you can include multiple instances of the same module
