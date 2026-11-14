@@ -25,6 +25,9 @@ modules:
       packages:
         - micro
         - starship
+        - papirus-icon-theme
+        - papirus-icon-theme-dark
+        - plymouth-plugin-script
     remove:
       packages:
         # example: removing firefox (in favor of the flatpak)
@@ -42,4 +45,16 @@ modules:
           - org.gnome.Loupe
       - scope: user # Also add Flathub user repo, but no user packages
 
+  - type: os-release
+    properties:
+      NAME: FloatOS
+      PRETTY_NAME: "FloatOS (based on Bazzite)"
+      VARIANT: FloatOS
+      VARIANT_ID: floatos
+      ID_LIKE: fedora
+      HOME_URL: "https://github.com/priyankasomepalli19-alt/floatos"
+
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
+
+  # Rebuild the initramfs after installing the FloatOS Plymouth theme.
+  - type: initramfs
