@@ -1,61 +1,49 @@
 # FloatOS
 
-FloatOS is a custom Bazzite-based Linux desktop project. It keeps Bazzite's gaming-focused Fedora Atomic foundation and adds FloatOS identity, KDE defaults, desktop layout, and boot branding.
+**FloatOS is an independently assembled x86-64 Linux operating system project.** Its toolchain, kernel, userspace and bootable image are assembled from source with Buildroot. It does not use Fedora, Bazzite, Ubuntu, or another distribution as its base.
 
-## Current development status
+## FloatOS 0.1
 
-- Base: Bazzite stable, KDE desktop image.
-- Branding: FloatOS OS release metadata, dark/lime KDE color scheme, Papirus Dark icons, and FloatOS wallpaper.
-- Desktop: Plasma first-login layout with a top status panel and centered floating dock.
-- Boot: FloatOS Plymouth splash theme.
-- Login: FloatOS wallpaper on Plasma Login Manager where supported. Plasma Login Manager uses its native Breeze greeter; this project does not replace it with an unsupported custom QML theme.
+The first bootable development image includes:
 
-## Build the image
+- Linux 6.18.55 kernel for x86-64 PCs.
+- A Buildroot-generated userspace using BusyBox init and glibc.
+- X.Org, Openbox, PCManFM file manager and Xterm.
+- FloatOS charcoal, white and lime-green (#A6FF4D) visual identity.
+- FloatOS boot menu and generated desktop wallpaper.
+- AMD Radeon graphics firmware and Realtek rtw88 Wi-Fi firmware.
+- A live desktop that starts automatically after boot.
 
-1. Open the repository's **Actions** tab.
-2. Select the **bluebuild** workflow.
-3. Confirm the latest run for the commit you want has completed successfully.
-4. The image is published to `ghcr.io/priyankasomepalli19-alt/floatos`.
+This is a **live preview ISO**, not a disk installer. It boots into FloatOS without partitioning or modifying your internal drive. Files and settings created during a live session are temporary and are lost when you shut down.
 
-The main branch build is the recommended image to install. Feature branches are for development and validation.
+## Download
 
-## Build a bootable installer ISO
+After a successful GitHub Actions build, the ISO and SHA-256 checksum are published here:
 
-1. Merge the tested changes into `main`.
-2. Wait for the **bluebuild** workflow on `main` to finish successfully.
-3. Open **Actions → Build FloatOS ISO → Run workflow**.
-4. Leave `image_tag` as `latest` to build the current main image.
-5. When the run succeeds, open it and download the `FloatOS-Installer-ISO` artifact.
+https://github.com/priyankasomepalli19-alt/floatos/releases/tag/floatos-latest
 
-The ISO workflow uses BlueBuild's ISO generator with the KDE/Kinoite installer variant. It creates an installer ISO, not a live desktop session. GitHub artifact storage quotas may prevent storing a large ISO; the workflow keeps the artifact for one day to minimize storage use.
+GitHub Actions also retains the downloadable build artifact for 14 days.
 
-## How to test FloatOS safely
+## Build
 
-### Recommended: test in a virtual machine first
+The Actions workflow downloads Buildroot 2026.08.1, loads `floatos_x86_64_defconfig`, builds the kernel and selected packages, creates a BIOS/UEFI ISO, checks it with xorriso and publishes it.
 
-1. Use VMware Workstation or another UEFI-capable virtual machine manager.
-2. Create a new Linux/Fedora 64-bit VM with UEFI firmware, 2 virtual CPU cores, and 4 GB RAM (close other apps first on an 8 GB host).
-3. Attach the FloatOS ISO as the VM's virtual CD/DVD.
-4. Create a virtual disk of at least 50 GB. Use a dynamically allocated disk and store it on a drive with enough free space.
-5. Boot the VM from the ISO and install FloatOS **only to that VM's virtual disk**.
-6. When installation finishes, disconnect the ISO and boot the VM from its virtual disk.
-7. Check the boot splash, login background, top panel, dock, wallpaper, app launcher, file manager, audio, network, and Steam.
+To build locally on Linux:
 
-The installer ISO is not a live preview. To see the installed FloatOS desktop, install it to a VM virtual disk or a separate spare test drive.
-
-### Testing on physical hardware
-
-- Use a spare USB drive of at least 16 GB for the installer. Writing the ISO erases that USB.
-- Keep Windows and your internal NVMe untouched.
-- For an installed hardware test, use a separate spare SSD/drive as the installation target. Do not select the Windows disk or any disk containing personal files.
-- The USB installer and installation target must be two different drives.
+```sh
+make BR2_EXTERNAL="$PWD" O="$PWD/output" floatos_x86_64_defconfig
+make BR2_EXTERNAL="$PWD" O="$PWD/output" -j2
+```
 
 ## Safety
 
-Do not run a rebase or installation command against your daily Windows/Bazzite laptop during initial testing. Do not format or repartition the internal SSD. Verify the image build and test it in a virtual machine before considering any physical installation.
+- Boot the ISO from a USB or virtual machine for testing.
+- The live ISO does not install itself to a hard drive.
+- Do not use an installer or partitioning tool on your Windows drive.
+- Use a separate test disk if a future FloatOS installer is added.
 
-## Source and build documentation
+## Project structure
 
-- [Bazzite custom image guide](https://docs.bazzite.gg/Advanced/creating_custom_image/)
-- [BlueBuild ISO guide](https://blue-build.org/how-to/generate-iso/)
-- [BlueBuild recipe reference](https://blue-build.org/reference/recipe/)
+- `configs/`: FloatOS Buildroot configuration.
+- `board/floatos/`: bootloader, kernel fragment, users and root filesystem setup.
+- `.github/workflows/build.yml`: source build and ISO publishing pipeline.

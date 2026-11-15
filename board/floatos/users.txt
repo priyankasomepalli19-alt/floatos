@@ -1,0 +1,1 @@
+floatos -2 floatos -2 * /home/floatos /bin/sh audio,video,input,netdev FloatOS Desktop

@@ -1,8 +1,0 @@
-[Plymouth Theme]
-Name=FloatOS
-Description=FloatOS branded boot splash
-ModuleName=script
-
-[script]
-ImageDir=/usr/share/plymouth/themes/floatos
-ScriptFile=/usr/share/plymouth/themes/floatos/floatos.script
