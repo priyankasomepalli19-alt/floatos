@@ -11,17 +11,22 @@ on:
       - "board/floatos/**"
       - "README.md"
   workflow_dispatch:
+
 permissions:
   contents: write
+
+# Keep only the newest build for a branch. Old builds must not race to publish
+# different ISO files to the same floatos-latest release.
 concurrency:
-  group: floatos-build-${{ github.ref }}-${{ github.run_id }}
-  # Keep a useful in-progress ISO build alive when a small workflow change is pushed.
-  cancel-in-progress: false
+  group: floatos-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build independent FloatOS ISO
     runs-on: ubuntu-24.04
     timeout-minutes: 360
+
     steps:
       - uses: actions/checkout@v4
 
@@ -31,7 +36,6 @@ jobs:
           sh -n board/floatos/post-build.sh
           sh -n board/floatos/post-build-fixes.sh
           sh -n board/floatos/post-fakeroot.sh
-
 
       - name: Free runner space and inspect resources
         run: |
@@ -49,8 +53,6 @@ jobs:
           restore-keys: |
             buildroot-2026.08.1-${{ runner.os }}-
 
-      # Buildroot stores compiler results in ~/.buildroot-ccache by default.
-      # A run-specific key lets each successful run refresh the cache snapshot.
       - name: Restore Buildroot compiler cache
         uses: actions/cache@v4
         with:
@@ -77,20 +79,39 @@ jobs:
           set -euo pipefail
           make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$GITHUB_WORKSPACE/output" floatos_x86_64_defconfig
           make -C buildroot-src O="$GITHUB_WORKSPACE/output" olddefconfig
-          echo "Normalized FloatOS Buildroot selections and Openbox prerequisites:"
-          grep -E '^(BR2_x86_64|BR2_JLEVEL|BR2_LINUX_KERNEL|BR2_TARGET_ROOTFS_ISO9660|BR2_TARGET_ROOTFS_ISO9660_GRUB2|BR2_TARGET_GRUB2|BR2_PACKAGE_XORG7|BR2_PACKAGE_OPENBOX|BR2_PACKAGE_MATCHBOX|BR2_PACKAGE_MATCHBOX_PANEL|BR2_PACKAGE_XSERVER_XORG_SERVER|BR2_PACKAGE_PCMANFM|BR2_PACKAGE_DILLO|BR2_USE_MMU|BR2_USE_WCHAR|BR2_TOOLCHAIN_HAS_THREADS|BR2_TOOLCHAIN_HAS_SYNC_4|BR2_TOOLCHAIN_GCC_AT_LEAST_4_9|BR2_INSTALL_LIBSTDCPP|BR2_TOOLCHAIN_BUILDROOT_CXX|BR2_TOOLCHAIN_BUILDROOT_GLIBC)=' output/.config || true
+
+          echo "Normalized FloatOS Buildroot configuration:"
+          grep -E '^(BR2_x86_64|BR2_JLEVEL|BR2_LINUX_KERNEL|BR2_TARGET_ROOTFS_ISO9660|BR2_TARGET_ROOTFS_ISO9660_GRUB2|BR2_PACKAGE_XORG7|BR2_PACKAGE_OPENBOX|BR2_PACKAGE_MATCHBOX_PANEL|BR2_PACKAGE_XSERVER_XORG_SERVER|BR2_PACKAGE_PCMANFM|BR2_PACKAGE_DILLO)=' output/.config || true
+
           for option in BR2_x86_64 BR2_LINUX_KERNEL BR2_TARGET_ROOTFS_ISO9660 BR2_TARGET_ROOTFS_ISO9660_GRUB2 BR2_PACKAGE_OPENBOX BR2_PACKAGE_XSERVER_XORG_SERVER BR2_PACKAGE_PCMANFM; do
             if ! grep -q "^$option=y$" output/.config; then
               echo "::error::$option is not enabled in the normalized Buildroot configuration."
               exit 1
             fi
           done
-          if ! grep -q '^BR2_JLEVEL=4
+
+          if ! grep -q '^BR2_JLEVEL=4$' output/.config; then
+            echo "::error::BR2_JLEVEL=4 is not enabled."
+            exit 1
+          fi
+
+          if grep -q '^BR2_PER_PACKAGE_DIRECTORIES=y$' output/.config; then
+            echo "::error::Top-level parallel package mode must remain disabled for this build."
+            exit 1
+          fi
+
+      - name: Preflight PCManFM patches
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.buildroot-dl"
+          make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$GITHUB_WORKSPACE/output" BR2_DL_DIR="$HOME/.buildroot-dl" pcmanfm-patch
+
+      - name: Compile FloatOS from source
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.buildroot-dl" "$HOME/.buildroot-ccache"
           JOBS="$(sed -n 's/^BR2_JLEVEL=//p' output/.config | head -n1)"
-          echo "Building with $JOBS parallel jobs inside each package; top-level package builds remain serialized for reliability."
+          echo "Building with $JOBS parallel jobs inside each package; top-level package builds remain serialized."
           make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$GITHUB_WORKSPACE/output" BR2_DL_DIR="$HOME/.buildroot-dl"
           make -C buildroot-src O="$GITHUB_WORKSPACE/output" ccache-stats || true
           du -sh "$HOME/.buildroot-ccache" || true
@@ -100,17 +121,21 @@ jobs:
           set -euo pipefail
           ISO="output/images/rootfs.iso9660"
           test -s "$ISO"
-          xorriso -indev "$ISO" -report_el_torito as_mkisofs
           mkdir -p release
+          xorriso -indev "$ISO" -report_el_torito as_mkisofs > release/eltorito-report.txt
           cp "$ISO" release/FloatOS-0.1-x86_64.iso
           (cd release && sha256sum FloatOS-0.1-x86_64.iso > FloatOS-0.1-x86_64.iso.sha256)
+          (cd release && sha256sum --check FloatOS-0.1-x86_64.iso.sha256)
           ls -lh release/*
 
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
           name: FloatOS-0.1-x86_64
-          path: release/*
+          path: |
+            release/FloatOS-0.1-x86_64.iso
+            release/FloatOS-0.1-x86_64.iso.sha256
+            release/eltorito-report.txt
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
@@ -136,141 +161,6 @@ jobs:
 
       - name: Publish direct ISO download
         if: steps.release_guard.outputs.publish == 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: floatos-latest
-          name: FloatOS 0.1 — Latest build
-          prerelease: true
-          overwrite_files: true
-          body: |
-            FloatOS 0.1 is an independently assembled x86-64 Linux live system.
-            It is built from upstream Linux kernel and userspace source with Buildroot.
-            It is not based on Fedora, Bazzite, Ubuntu, or another distribution.
-            This first release is a live preview; it does not install to disks.
-          files: |
-            release/FloatOS-0.1-x86_64.iso
-            release/FloatOS-0.1-x86_64.iso.sha256
-
-      - name: Build summary
-        run: |
-          {
-            echo "## FloatOS 0.1 build succeeded"
-            echo ""
-            echo "- Architecture: x86_64"
-            echo "- System: independent Buildroot-generated root filesystem"
-            echo "- Desktop: X.Org, Openbox, PCManFM, Xterm and Matchbox panel"
-            echo "- ISO: FloatOS-0.1-x86_64.iso"
-            echo ""
-            echo "Live preview only. Booting it does not modify internal drives."
-            echo ""
-            cat release/FloatOS-0.1-x86_64.iso.sha256
-          } >> "$GITHUB_STEP_SUMMARY"
- output/.config; then
-            echo "::error::BR2_JLEVEL=4 is not enabled."
-            exit 1
-          fi
-          if grep -q '^BR2_PER_PACKAGE_DIRECTORIES=y
-        run: |
-          set -euo pipefail
-          mkdir -p "$HOME/.buildroot-dl" "$HOME/.buildroot-ccache"
-          JOBS="$(nproc)"
-          echo "Building with $JOBS top-level parallel jobs (Buildroot per-package mode enabled)."
-          make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$GITHUB_WORKSPACE/output" BR2_DL_DIR="$HOME/.buildroot-dl" -j"$JOBS"
-          make -C buildroot-src O="$GITHUB_WORKSPACE/output" ccache-stats || true
-          du -sh "$HOME/.buildroot-ccache" || true
-
-      - name: Verify and prepare bootable ISO
-        run: |
-          set -euo pipefail
-          ISO="output/images/rootfs.iso9660"
-          test -s "$ISO"
-          xorriso -indev "$ISO" -report_el_torito as_mkisofs
-          mkdir -p release
-          cp "$ISO" release/FloatOS-0.1-x86_64.iso
-          sha256sum release/FloatOS-0.1-x86_64.iso > release/FloatOS-0.1-x86_64.iso.sha256
-          ls -lh release/*
-
-      - name: Upload ISO artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: FloatOS-0.1-x86_64
-          path: release/*
-          if-no-files-found: error
-          retention-days: 14
-          compression-level: 0
-
-      - name: Publish direct ISO download
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: floatos-latest
-          name: FloatOS 0.1 — Latest build
-          prerelease: true
-          overwrite_files: true
-          body: |
-            FloatOS 0.1 is an independently assembled x86-64 Linux live system.
-            It is built from upstream Linux kernel and userspace source with Buildroot.
-            It is not based on Fedora, Bazzite, Ubuntu, or another distribution.
-            This first release is a live preview; it does not install to disks.
-          files: |
-            release/FloatOS-0.1-x86_64.iso
-            release/FloatOS-0.1-x86_64.iso.sha256
-
-      - name: Build summary
-        run: |
-          {
-            echo "## FloatOS 0.1 build succeeded"
-            echo ""
-            echo "- Architecture: x86_64"
-            echo "- System: independent Buildroot-generated root filesystem"
-            echo "- Desktop: X.Org, Openbox, PCManFM, Xterm and Matchbox panel"
-            echo "- ISO: FloatOS-0.1-x86_64.iso"
-            echo ""
-            echo "Live preview only. Booting it does not modify internal drives."
-            echo ""
-            cat release/FloatOS-0.1-x86_64.iso.sha256
-          } >> "$GITHUB_STEP_SUMMARY"
- output/.config; then
-            echo "::error::Experimental top-level parallel mode must remain disabled."
-            exit 1
-          fi
-
-      - name: Preflight PCManFM patches
-        run: |
-          set -euo pipefail
-          mkdir -p "$HOME/.buildroot-dl"
-          make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$GITHUB_WORKSPACE/output" BR2_DL_DIR="$HOME/.buildroot-dl" pcmanfm-patch
-
-      - name: Compile FloatOS from source
-        run: |
-          set -euo pipefail
-          mkdir -p "$HOME/.buildroot-dl" "$HOME/.buildroot-ccache"
-          JOBS="$(nproc)"
-          echo "Building with $JOBS top-level parallel jobs (Buildroot per-package mode enabled)."
-          make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$GITHUB_WORKSPACE/output" BR2_DL_DIR="$HOME/.buildroot-dl" -j"$JOBS"
-          make -C buildroot-src O="$GITHUB_WORKSPACE/output" ccache-stats || true
-          du -sh "$HOME/.buildroot-ccache" || true
-
-      - name: Verify and prepare bootable ISO
-        run: |
-          set -euo pipefail
-          ISO="output/images/rootfs.iso9660"
-          test -s "$ISO"
-          xorriso -indev "$ISO" -report_el_torito as_mkisofs
-          mkdir -p release
-          cp "$ISO" release/FloatOS-0.1-x86_64.iso
-          sha256sum release/FloatOS-0.1-x86_64.iso > release/FloatOS-0.1-x86_64.iso.sha256
-          ls -lh release/*
-
-      - name: Upload ISO artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: FloatOS-0.1-x86_64
-          path: release/*
-          if-no-files-found: error
-          retention-days: 14
-          compression-level: 0
-
-      - name: Publish direct ISO download
         uses: softprops/action-gh-release@v2
         with:
           tag_name: floatos-latest
