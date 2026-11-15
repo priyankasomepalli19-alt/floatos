@@ -15,11 +15,12 @@ on:
 permissions:
   contents: write
 
-# Keep only the newest build for a branch. Old builds must not race to publish
-# different ISO files to the same floatos-latest release.
+# Do not cancel an active source build when another commit is pushed.
+# GitHub keeps only the newest pending run for this group, and release_guard
+# prevents an older commit from publishing over the newest main build.
 concurrency:
   group: floatos-build-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -60,6 +61,7 @@ jobs:
           key: floatos-ccache-v1-${{ runner.os }}-${{ hashFiles('configs/**', 'board/floatos/patches/**') }}-${{ github.run_id }}
           restore-keys: |
             floatos-ccache-v1-${{ runner.os }}-${{ hashFiles('configs/**', 'board/floatos/patches/**') }}-
+          save-always: true
 
       - name: Install build dependencies
         run: |
