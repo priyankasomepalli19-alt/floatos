@@ -10,7 +10,8 @@ The first bootable development image includes:
 - A Buildroot-generated userspace using BusyBox init and glibc.
 - X.Org, Openbox, PCManFM file manager and Xterm.
 - FloatOS charcoal, white and lime-green (#A6FF4D) visual identity.
-- FloatOS boot menu and generated desktop wallpaper.
+- FloatOS boot menu, orbital charcoal/lime wallpaper, and circular FloatOS application icon.
+- Top status panel and a centered bottom launcher panel.
 - AMD Radeon graphics firmware and Realtek 8822CE rtw88 Wi-Fi firmware.
 - ConnMan for Ethernet and Wi-Fi management, with a desktop Network Settings shortcut.
 - A live desktop that starts automatically after boot.
