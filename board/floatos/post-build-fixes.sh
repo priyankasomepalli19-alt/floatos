@@ -19,6 +19,9 @@ else
     exit 1
 fi
 
+# Keep the FloatOS home directory writable by the live desktop user.
+chown -R 1000:1000 "$TARGET_DIR/home/floatos"
+
 # Give each panel a unique panel ID.
 sed -i 's/matchbox-panel --orientation north/matchbox-panel --id 1 --orientation north/' "$TARGET_DIR/home/floatos/.xinitrc"
 sed -i 's/matchbox-panel --orientation south/matchbox-panel --id 2 --orientation south/' "$TARGET_DIR/home/floatos/.xinitrc"
