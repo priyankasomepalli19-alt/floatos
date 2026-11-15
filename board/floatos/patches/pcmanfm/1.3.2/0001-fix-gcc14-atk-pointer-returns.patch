@@ -23,7 +23,7 @@ diff --git a/src/desktop.c b/src/desktop.c
      }
      return NULL;
  }
-@@ -1454,4 +1454,4 @@ static AtkObject *fm_desktop_accessible_ref_child(AtkObject *accessible,
+@@ -1454,5 +1454,5 @@ static AtkObject *fm_desktop_accessible_ref_child(AtkObject *accessible,
      item = g_list_nth_data(priv->items, index);
      if (!item)
          return NULL;
