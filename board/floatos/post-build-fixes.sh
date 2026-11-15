@@ -2,6 +2,11 @@
 set -eu
 TARGET_DIR="${1:?target directory is required}"
 
+# FloatOS starts X.Org through startx from the user's graphical session.
+# Disable Buildroot's standalone X.Org init service to avoid starting a
+# second server on display :0 before the desktop session begins.
+rm -f "$TARGET_DIR/etc/init.d/S40xorg"
+
 # X.Org is started from a dedicated unprivileged live desktop account.
 # On this no-logind Buildroot live image, the server must be setuid root
 # to acquire the VT and DRM/input devices.
