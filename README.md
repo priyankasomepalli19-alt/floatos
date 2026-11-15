@@ -37,7 +37,7 @@ When the `floatos-latest` release has been published, Windows users can download
 From **Windows CMD**, this single command downloads the helper and starts it:
 
 ```cmd
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $p=Join-Path $env:USERPROFILE 'Downloads\\download-floatos.bat'; Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/priyankasomepalli19-alt/floatos/main/download-floatos.bat' -OutFile $p; & $p"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $p=Join-Path $env:USERPROFILE 'Downloads\download-floatos.bat'; Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/priyankasomepalli19-alt/floatos/main/download-floatos.bat' -OutFile $p; & $p"
 ```
 
 The helper tries to install the official portable aria2 using WinGet when needed, then downloads with up to eight connections and resume support. If WinGet or aria2 is unavailable, it falls back to Windows' built-in curl. It verifies the ISO's SHA-256 before reporting success.
