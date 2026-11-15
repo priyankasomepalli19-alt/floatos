@@ -32,7 +32,7 @@ When the `floatos-latest` release has been published, Windows users can download
 
 1. Download [download-floatos.bat](https://raw.githubusercontent.com/priyankasomepalli19-alt/floatos/main/download-floatos.bat).
 2. Run the downloaded `download-floatos.bat` file.
-3. The ISO is saved to `%USERPROFILE%\\Downloads\\FloatOS` and its SHA-256 is checked automatically.
+3. The ISO is saved to `%USERPROFILE%\Downloads\FloatOS` and its SHA-256 is checked automatically.
 
 From **Windows CMD**, this single command downloads the helper and starts it:
 
