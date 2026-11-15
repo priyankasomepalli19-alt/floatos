@@ -67,7 +67,7 @@ feh --bg-fill /usr/share/backgrounds/floatos/floatos-wallpaper.ppm
 xcompmgr -c -t-5 -l-5 -r8 -o 0.24 &
 # A slim status strip and a bottom app launcher.
 matchbox-panel --orientation north --size 32 --default-apps "mb-applet-menu-launcher,mb-applet-clock" --no-session &
-matchbox-panel --orientation south --size 58 --default-apps "mb-applet-menu-launcher,mb-applet-clock" --no-session &
+matchbox-panel --orientation south --size 58 --margin-start +500 --margin-end +500 --default-apps "mb-applet-menu-launcher,mb-applet-clock" --no-session &
 pcmanfm --desktop --profile=FloatOS &
 exec openbox-session
 EOF
