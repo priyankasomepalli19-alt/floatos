@@ -3,8 +3,9 @@ BR2_TOOLCHAIN_BUILDROOT=y
 BR2_TOOLCHAIN_BUILDROOT_VENDOR="floatos"
 BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
 BR2_TOOLCHAIN_BUILDROOT_CXX=y
-# Use supported per-package compiler parallelism; keep top-level parallel mode disabled.
-BR2_JLEVEL=4
+# Build independent packages concurrently; limit each package to two compiler jobs.
+BR2_PER_PACKAGE_DIRECTORIES=y
+BR2_JLEVEL=2
 BR2_CCACHE=y
 BR2_CCACHE_INITIAL_SETUP="--max-size=6G"
 BR2_KERNEL_HEADERS_6_18=y
