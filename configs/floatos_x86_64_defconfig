@@ -3,8 +3,8 @@ BR2_TOOLCHAIN_BUILDROOT=y
 BR2_TOOLCHAIN_BUILDROOT_VENDOR="floatos"
 BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
 BR2_TOOLCHAIN_BUILDROOT_CXX=y
-# Required for experimental top-level parallel package builds.
-BR2_PER_PACKAGE_DIRECTORIES=y
+# Use supported per-package compiler parallelism; keep top-level parallel mode disabled.
+BR2_JLEVEL=4
 BR2_CCACHE=y
 BR2_CCACHE_INITIAL_SETUP="--max-size=6G"
 BR2_KERNEL_HEADERS_6_18=y
@@ -23,6 +23,7 @@ BR2_GLOBAL_PATCH_DIR="$(BR2_EXTERNAL_FLOATOS_PATH)/board/floatos/patches"
 BR2_ROOTFS_USERS_TABLES="$(BR2_EXTERNAL_FLOATOS_PATH)/board/floatos/users.txt"
 BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_FLOATOS_PATH)/board/floatos/overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_FLOATOS_PATH)/board/floatos/post-build.sh $(BR2_EXTERNAL_FLOATOS_PATH)/board/floatos/post-build-fixes.sh"
+BR2_ROOTFS_POST_FAKEROOT_SCRIPT="$(BR2_EXTERNAL_FLOATOS_PATH)/board/floatos/post-fakeroot.sh"
 
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION=y
