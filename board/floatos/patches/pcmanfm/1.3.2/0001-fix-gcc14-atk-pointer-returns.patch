@@ -30,5 +30,5 @@ diff --git a/src/desktop.c b/src/desktop.c
 -    return g_object_ref(item);
 +    return (AtkObject *)g_object_ref(item);
  }
-
+ 
  static void fm_desktop_accessible_initialize(AtkObject *accessible, gpointer data)
