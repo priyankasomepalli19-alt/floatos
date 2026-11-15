@@ -25,6 +25,16 @@ https://github.com/priyankasomepalli19-alt/floatos/releases/tag/floatos-latest
 
 GitHub Actions also retains the downloadable build artifact for 14 days.
 
+## Windows ISO download
+
+When the `floatos-latest` release has been published, Windows users can download and verify it with the included helper:
+
+1. Download [download-floatos.bat](https://raw.githubusercontent.com/priyankasomepalli19-alt/floatos/main/download-floatos.bat).
+2. Run the downloaded `download-floatos.bat` file.
+3. The ISO is saved to `%USERPROFILE%\\Downloads\\FloatOS` and its SHA-256 is checked automatically.
+
+The helper uses aria2 multi-connection downloads when aria2 is already installed; otherwise it uses Windows' built-in curl with resume and retries.
+
 ## Build
 
 The Actions workflow downloads Buildroot 2026.08.1, loads `floatos_x86_64_defconfig`, builds the kernel and selected packages, creates a BIOS/UEFI ISO, checks it with xorriso and publishes it.
