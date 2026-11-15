@@ -1,0 +1,32 @@
+From 9bf5145eba45cd5e3b87d4f040618fe0ea69a81d Mon Sep 17 00:00:00 2001
+From: FloatOS Maintainers <floatos@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 20:50:00 +0530
+Subject: [PATCH] pcmanfm: fix GCC 14 incompatible pointer return types
+
+GCC 14 diagnoses the two implicit conversions from FmDesktopItemAccessible
+to AtkObject in the accessibility helpers as errors. Add the explicit
+base-class casts expected by the AtkSelection/AtkObject interfaces.
+
+---
+ src/desktop.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/desktop.c b/src/desktop.c
+--- a/src/desktop.c
++++ b/src/desktop.c
+@@ -1267,7 +1267,7 @@ static AtkObject *fm_desktop_accessible_ref_selection(AtkSelection *selection,
+         item = items->data;
+         if (item->item->is_selected)
+             if (i-- == 0)
+-                return g_object_ref(item);
++                return (AtkObject *)g_object_ref(item);
+     }
+     return NULL;
+ }
+@@ -1454,7 +1454,7 @@ static AtkObject *fm_desktop_accessible_ref_child(AtkObject *accessible,
+     item = g_list_nth_data(priv->items, index);
+     if (!item)
+         return NULL;
+-    return g_object_ref(item);
++    return (AtkObject *)g_object_ref(item);
+ }
