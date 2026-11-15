@@ -12,13 +12,30 @@ echo  FLOATOS 0.1 ISO DOWNLOADER
 echo  Destination: %DEST%
 echo.
 
-where aria2c.exe >nul 2>&1
-if not errorlevel 1 (
-    echo Using aria2 for multi-connection download...
-    aria2c.exe --continue=true --allow-overwrite=true --auto-file-renaming=false --max-connection-per-server=8 --split=8 --min-split-size=1M --max-tries=10 --retry-wait=3 --dir="%DEST%" --out="%ISO%" "%BASE%/%ISO%"
+set "ARIA2="
+for /f "delims=" %%A in ('where aria2c.exe 2^>nul') do if not defined ARIA2 set "ARIA2=%%A"
+
+if not defined ARIA2 (
+    where winget.exe >nul 2>&1
+    if not errorlevel 1 (
+        echo aria2 is missing. Installing the official portable build with WinGet...
+        winget install --id aria2.aria2 -e --silent --accept-source-agreements --accept-package-agreements
+        if not errorlevel 1 (
+            if exist "%LOCALAPPDATA%\Microsoft\WinGet\Links\aria2c.exe" set "ARIA2=%LOCALAPPDATA%\Microsoft\WinGet\Links\aria2c.exe"
+            if not defined ARIA2 (
+                set "PATH=%LOCALAPPDATA%\Microsoft\WinGet\Links;%PATH%"
+                for /f "delims=" %%A in ('where aria2c.exe 2^>nul') do if not defined ARIA2 set "ARIA2=%%A"
+            )
+        )
+    )
+)
+
+if defined ARIA2 (
+    echo Using aria2 for an 8-connection resumable download...
+    "%ARIA2%" --continue=true --allow-overwrite=true --auto-file-renaming=false --max-connection-per-server=8 --split=8 --min-split-size=1M --max-tries=10 --retry-wait=3 --dir="%DEST%" --out="%ISO%" "%BASE%/%ISO%"
     if errorlevel 1 goto :download_failed
 ) else (
-    echo aria2 was not found. Using Windows curl with resume and retries...
+    echo aria2/WinGet was unavailable. Using Windows curl with resume and retries...
     curl.exe --location --fail --retry 10 --retry-all-errors --retry-delay 3 --connect-timeout 30 --continue-at - --output "%DEST%\%ISO%" "%BASE%/%ISO%"
     if errorlevel 1 goto :download_failed
 )
