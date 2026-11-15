@@ -48,10 +48,14 @@ jobs:
           set -euo pipefail
           make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$GITHUB_WORKSPACE/output" floatos_x86_64_defconfig
           make -C buildroot-src O="$GITHUB_WORKSPACE/output" olddefconfig
-          grep -q '^BR2_x86_64=y' output/.config
-          grep -q '^BR2_LINUX_KERNEL=y' output/.config
-          grep -q '^BR2_TARGET_ROOTFS_ISO9660=y' output/.config
-          grep -q '^BR2_PACKAGE_OPENBOX=y' output/.config
+          echo "Normalized FloatOS Buildroot selections:"
+          grep -E '^(BR2_x86_64|BR2_LINUX_KERNEL|BR2_TARGET_ROOTFS_ISO9660|BR2_TARGET_ROOTFS_ISO9660_GRUB2|BR2_TARGET_GRUB2|BR2_PACKAGE_OPENBOX|BR2_PACKAGE_XSERVER_XORG_SERVER|BR2_PACKAGE_PCMANFM|BR2_PACKAGE_DILLO)=' output/.config || true
+          for option in BR2_x86_64 BR2_LINUX_KERNEL BR2_TARGET_ROOTFS_ISO9660 BR2_TARGET_ROOTFS_ISO9660_GRUB2 BR2_PACKAGE_OPENBOX BR2_PACKAGE_XSERVER_XORG_SERVER BR2_PACKAGE_PCMANFM; do
+            if ! grep -q "^$option=y$" output/.config; then
+              echo "::error::$option is not enabled in the normalized Buildroot configuration."
+              exit 1
+            fi
+          done
       - name: Compile FloatOS from source
         run: |
           set -euo pipefail
