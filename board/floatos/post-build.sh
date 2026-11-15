@@ -124,6 +124,7 @@ cat > "$TARGET_DIR/etc/xdg/openbox/menu.xml" <<'EOF'
   <menu id="root-menu" label="FloatOS">
     <item label="Files"><action name="Execute"><command>pcmanfm</command></action></item>
     <item label="Web Browser"><action name="Execute"><command>dillo</command></action></item>
+    <item label="Wi-Fi / Network Settings"><action name="Execute"><command>xterm -e connmanctl</command></action></item>
     <item label="Terminal"><action name="Execute"><command>xterm</command></action></item>
     <item label="System Monitor"><action name="Execute"><command>xterm -e top</command></action></item>
     <separator/>
@@ -185,6 +186,16 @@ Icon=web-browser
 Terminal=false
 Categories=Network;WebBrowser;
 EOF
+cat > "$TARGET_DIR/usr/share/applications/floatos-network.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=FloatOS Network Settings
+Comment=Manage Ethernet and Wi-Fi connections
+Exec=xterm -e connmanctl
+Icon=network-wireless
+Terminal=false
+Categories=Network;Settings;
+EOF
 cat > "$TARGET_DIR/usr/share/applications/floatos-terminal.desktop" <<'EOF'
 [Desktop Entry]
 Type=Application
@@ -215,6 +226,16 @@ Exec=dillo
 Icon=web-browser
 Terminal=false
 Categories=Network;WebBrowser;
+EOF
+cat > "$TARGET_DIR/home/floatos/Desktop/Network Settings.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Network Settings
+Comment=Manage Ethernet and Wi-Fi connections
+Exec=xterm -e connmanctl
+Icon=network-wireless
+Terminal=false
+Categories=Network;Settings;
 EOF
 cat > "$TARGET_DIR/home/floatos/Desktop/Terminal.desktop" <<'EOF'
 [Desktop Entry]

@@ -11,7 +11,8 @@ The first bootable development image includes:
 - X.Org, Openbox, PCManFM file manager and Xterm.
 - FloatOS charcoal, white and lime-green (#A6FF4D) visual identity.
 - FloatOS boot menu and generated desktop wallpaper.
-- AMD Radeon graphics firmware and Realtek rtw88 Wi-Fi firmware.
+- AMD Radeon graphics firmware and Realtek 8822CE rtw88 Wi-Fi firmware.
+- ConnMan for Ethernet and Wi-Fi management, with a desktop Network Settings shortcut.
 - A live desktop that starts automatically after boot.
 
 This is a **live preview ISO**, not a disk installer. It boots into FloatOS without partitioning or modifying your internal drive. Files and settings created during a live session are temporary and are lost when you shut down.
