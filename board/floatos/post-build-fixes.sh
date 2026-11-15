@@ -20,7 +20,12 @@ else
 fi
 
 # Keep the FloatOS home directory writable by the live desktop user.
-chown -R 1000:1000 "$TARGET_DIR/home/floatos"
+FLOATOS_UID="$(awk -F: '$1 == "floatos" { print $3 }' "$TARGET_DIR/etc/passwd")"
+FLOATOS_GID="$(awk -F: '$1 == "floatos" { print $3 }' "$TARGET_DIR/etc/group")"
+case "$FLOATOS_UID:$FLOATOS_GID" in
+    *[!0-9:]*|:*) echo "FloatOS user/group IDs could not be resolved" >&2; exit 1 ;;
+esac
+chown -R "$FLOATOS_UID:$FLOATOS_GID" "$TARGET_DIR/home/floatos"
 
 # Give each panel a unique panel ID.
 sed -i 's/matchbox-panel --orientation north/matchbox-panel --id 1 --orientation north/' "$TARGET_DIR/home/floatos/.xinitrc"
