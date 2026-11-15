@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-TARGET_DIR="\${1:?target directory is required}"
+TARGET_DIR="${1:?target directory is required}"
 
 # FloatOS identity and boot-to-desktop configuration.
 mkdir -p "$TARGET_DIR/usr/share/backgrounds/floatos"
