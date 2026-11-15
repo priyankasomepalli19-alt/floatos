@@ -14,7 +14,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: floatos-build-${{ github.ref }}
+  group: floatos-build-${{ github.ref }}-${{ github.run_id }}
   # Keep a useful in-progress ISO build alive when a small workflow change is pushed.
   cancel-in-progress: false
 jobs:
