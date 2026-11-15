@@ -30,7 +30,7 @@ if errorlevel 1 goto :checksum_failed
 
 echo.
 echo Verifying SHA-256...
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$expected = ((Get-Content -LiteralPath '%DEST%\%ISO%.sha256' -Raw) -split '\\s+')[0].ToLower(); $actual = (Get-FileHash -LiteralPath '%DEST%\%ISO%' -Algorithm SHA256).Hash.ToLower(); if ($expected -ne $actual) { Write-Error 'SHA-256 mismatch. Do not use this ISO.'; exit 1 }; Write-Host 'SHA-256 verified successfully.' -ForegroundColor Green"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$expected = ((Get-Content -LiteralPath '%DEST%\%ISO%.sha256' -Raw) -split '\s+')[0].ToLower(); $actual = (Get-FileHash -LiteralPath '%DEST%\%ISO%' -Algorithm SHA256).Hash.ToLower(); if ($expected -ne $actual) { Write-Error 'SHA-256 mismatch. Do not use this ISO.'; exit 1 }; Write-Host 'SHA-256 verified successfully.' -ForegroundColor Green"
 if errorlevel 1 goto :checksum_failed
 
 echo.
