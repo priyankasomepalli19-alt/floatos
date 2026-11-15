@@ -10,7 +10,8 @@ The first bootable development image includes:
 - A Buildroot-generated userspace using BusyBox init and glibc.
 - X.Org, Openbox, PCManFM file manager and Xterm.
 - FloatOS charcoal, white and lime-green (#A6FF4D) visual identity.
-- FloatOS boot menu and generated desktop wallpaper.
+- FloatOS boot menu, orbital charcoal/lime wallpaper, and circular FloatOS application icon.
+- Top status panel and a centered bottom launcher panel.
 - AMD Radeon graphics firmware and Realtek 8822CE rtw88 Wi-Fi firmware.
 - ConnMan for Ethernet and Wi-Fi management, with a desktop Network Settings shortcut.
 - A live desktop that starts automatically after boot.
@@ -31,9 +32,15 @@ When the `floatos-latest` release has been published, Windows users can download
 
 1. Download [download-floatos.bat](https://raw.githubusercontent.com/priyankasomepalli19-alt/floatos/main/download-floatos.bat).
 2. Run the downloaded `download-floatos.bat` file.
-3. The ISO is saved to `%USERPROFILE%\\Downloads\\FloatOS` and its SHA-256 is checked automatically.
+3. The ISO is saved to `%USERPROFILE%\Downloads\FloatOS` and its SHA-256 is checked automatically.
 
-The helper uses aria2 multi-connection downloads when aria2 is already installed; otherwise it uses Windows' built-in curl with resume and retries.
+From **Windows CMD**, this single command downloads the helper and starts it:
+
+```cmd
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $p=Join-Path $env:USERPROFILE 'Downloads\download-floatos.bat'; Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/priyankasomepalli19-alt/floatos/main/download-floatos.bat' -OutFile $p; & $p"
+```
+
+The helper tries to install the official portable aria2 using WinGet when needed, then downloads with up to eight connections and resume support. If WinGet or aria2 is unavailable, it falls back to Windows' built-in curl. It verifies the ISO's SHA-256 before reporting success.
 
 ## Build
 

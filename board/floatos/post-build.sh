@@ -67,7 +67,7 @@ feh --bg-fill /usr/share/backgrounds/floatos/floatos-wallpaper.ppm
 xcompmgr -c -t-5 -l-5 -r8 -o 0.24 &
 # A slim status strip and a bottom app launcher.
 matchbox-panel --orientation north --size 32 --default-apps "mb-applet-menu-launcher,mb-applet-clock" --no-session &
-matchbox-panel --orientation south --size 58 --default-apps "mb-applet-menu-launcher,mb-applet-clock" --no-session &
+matchbox-panel --orientation south --size 58 --margin-start +500 --margin-end +500 --default-apps "mb-applet-menu-launcher,mb-applet-clock" --no-session &
 pcmanfm --desktop --profile=FloatOS &
 exec openbox-session
 EOF
@@ -127,6 +127,7 @@ cat > "$TARGET_DIR/etc/xdg/openbox/menu.xml" <<'EOF'
     <item label="Wi-Fi / Network Settings"><action name="Execute"><command>xterm -e connmanctl</command></action></item>
     <item label="Terminal"><action name="Execute"><command>xterm</command></action></item>
     <item label="System Monitor"><action name="Execute"><command>xterm -e top</command></action></item>
+    <item label="About FloatOS"><action name="Execute"><command>xterm -e cat /usr/share/floatos/README.txt</command></action></item>
     <separator/>
     <item label="Exit Desktop"><action name="Exit"/></item>
   </menu>
@@ -205,6 +206,16 @@ Exec=xterm
 Icon=utilities-terminal
 Terminal=false
 Categories=System;TerminalEmulator;
+EOF
+cat > "$TARGET_DIR/usr/share/applications/floatos-about.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=About FloatOS
+Comment=View information about this FloatOS build
+Exec=xterm -e cat /usr/share/floatos/README.txt
+Icon=floatos
+Terminal=false
+Categories=System;
 EOF
 
 cat > "$TARGET_DIR/home/floatos/Desktop/Files.desktop" <<'EOF'
