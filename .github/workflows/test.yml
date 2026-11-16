@@ -1,0 +1,136 @@
+name: Validate FloatOS (no ISO)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/test.yml"
+      - "external.desc"
+      - "external.mk"
+      - "Config.in"
+      - "configs/**"
+      - "board/floatos/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Source and Buildroot configuration tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out FloatOS source
+        uses: actions/checkout@v4
+
+      - name: Validate required project files
+        run: |
+          set -euo pipefail
+          required=(
+            README.md
+            external.desc
+            external.mk
+            Config.in
+            configs/floatos_x86_64_defconfig
+            board/floatos/post-build.sh
+            board/floatos/post-build-fixes.sh
+            board/floatos/post-fakeroot.sh
+            board/floatos/linux.fragment
+            board/floatos/users.txt
+            board/floatos/grub.cfg
+            board/floatos/grub-pc.cfg
+            board/floatos/grub-efi.cfg
+          )
+          for file in "${required[@]}"; do
+            test -s "$file" || { echo "::error::Missing or empty file: $file"; exit 1; }
+            echo "OK: $file"
+          done
+
+      - name: Validate shell script syntax
+        run: |
+          set -euo pipefail
+          sh -n board/floatos/post-build.sh
+          sh -n board/floatos/post-build-fixes.sh
+          sh -n board/floatos/post-fakeroot.sh
+          echo "All FloatOS shell scripts passed sh -n."
+
+      - name: Validate essential FloatOS configuration
+        run: |
+          set -euo pipefail
+          CONFIG="configs/floatos_x86_64_defconfig"
+          required=(
+            'BR2_x86_64=y'
+            'BR2_PER_PACKAGE_DIRECTORIES=y'
+            'BR2_JLEVEL=2'
+            'BR2_LINUX_KERNEL=y'
+            'BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="6.18.55"'
+            'BR2_TARGET_ROOTFS_ISO9660=y'
+            'BR2_TARGET_ROOTFS_ISO9660_GRUB2=y'
+            'BR2_PACKAGE_OPENBOX=y'
+            'BR2_PACKAGE_XSERVER_XORG_SERVER=y'
+            'BR2_PACKAGE_PCMANFM=y'
+          )
+          for setting in "${required[@]}"; do
+            grep -Fqx "$setting" "$CONFIG" || {
+              echo "::error::Missing required configuration: $setting"
+              exit 1
+            }
+            echo "OK: $setting"
+          done
+
+      - name: Install Buildroot configuration test dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc g++ make bc bison flex file wget curl rsync cpio unzip perl python3 patch gzip bzip2 tar git libncurses-dev libssl-dev libelf-dev xorriso mtools dosfstools
+
+      - name: Download Buildroot 2026.08.1
+        run: |
+          set -euo pipefail
+          wget --https-only -O /tmp/buildroot.tar.xz https://buildroot.org/downloads/buildroot-2026.08.1.tar.xz
+          mkdir -p buildroot-src
+          tar -xf /tmp/buildroot.tar.xz --strip-components=1 -C buildroot-src
+
+      - name: Configure FloatOS without compiling or creating an ISO
+        run: |
+          set -euo pipefail
+          make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$RUNNER_TEMP/floatos-test-output" floatos_x86_64_defconfig
+          make -C buildroot-src O="$RUNNER_TEMP/floatos-test-output" olddefconfig
+          CONFIG="$RUNNER_TEMP/floatos-test-output/.config"
+          for option in BR2_x86_64 BR2_PER_PACKAGE_DIRECTORIES BR2_LINUX_KERNEL BR2_TARGET_ROOTFS_ISO9660 BR2_TARGET_ROOTFS_ISO9660_GRUB2 BR2_PACKAGE_OPENBOX BR2_PACKAGE_XSERVER_XORG_SERVER BR2_PACKAGE_PCMANFM; do
+            grep -q "^$option=y$" "$CONFIG" || {
+              echo "::error::Buildroot disabled required option: $option"
+              exit 1
+            }
+          done
+          grep -q '^BR2_JLEVEL=2$' "$CONFIG" || {
+            echo "::error::Expected two compiler jobs per package."
+            exit 1
+          }
+          grep -q '^BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="6.18.55"$' "$CONFIG" || {
+            echo "::error::Unexpected Linux kernel version."
+            exit 1
+          }
+          echo "Buildroot accepted and normalized the FloatOS configuration."
+
+      - name: Check PCManFM patch applies (no package compilation)
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.buildroot-dl"
+          make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$RUNNER_TEMP/floatos-test-output" BR2_DL_DIR="$HOME/.buildroot-dl" pcmanfm-patch
+          echo "PCManFM patches applied successfully."
+
+      - name: Test summary
+        run: |
+          {
+            echo "## FloatOS validation passed"
+            echo ""
+            echo "- Required source files: checked"
+            echo "- Shell script syntax: checked"
+            echo "- Buildroot 2026.08.1 configuration: normalized successfully"
+            echo "- PCManFM patches: applied successfully"
+            echo ""
+            echo "**No full operating-system compilation was run. No ISO was created.**"
+          } >> "$GITHUB_STEP_SUMMARY"
