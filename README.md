@@ -46,7 +46,7 @@ The helper tries to install the official portable aria2 using WinGet when needed
 
 The Actions workflow downloads Buildroot 2026.08.1, loads `floatos_x86_64_defconfig`, builds the kernel and selected packages, creates a BIOS/UEFI ISO, checks it with xorriso and publishes it.
 
-Buildroot uses four parallel compiler jobs within each package. The experimental top-level parallel mode is intentionally disabled for reliability.
+Buildroot limits each package to two compiler jobs. The experimental top-level parallel mode is intentionally disabled for reliability.
 
 To build locally on Linux:
 
