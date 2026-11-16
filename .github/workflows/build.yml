@@ -186,7 +186,7 @@ jobs:
             echo ""
             echo "- Architecture: x86_64"
             echo "- System: independent Buildroot-generated root filesystem"
-            echo "- Desktop: X.Org, Openbox, PCManFM, Xterm and Matchbox panel"
+            echo "- Desktop: FloatOS GTK3 shell, Openbox, PCManFM and Xterm"
             echo "- ISO: FloatOS-0.1-x86_64.iso"
             echo ""
             echo "Live preview only. Booting it does not modify internal drives."
