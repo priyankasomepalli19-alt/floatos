@@ -1,0 +1,6 @@
+config BR2_PACKAGE_FLOATOS_SHELL
+    bool "floatos-shell"
+    depends on BR2_PACKAGE_LIBGTK3_X11
+    help
+      FloatOS's own GTK3 desktop shell with an animated app launcher,
+      floating dock, status panel, quick settings and desktop settings.
