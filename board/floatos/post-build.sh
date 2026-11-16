@@ -62,14 +62,12 @@ chmod 0755 "$TARGET_DIR/usr/sbin/floatos-login"
 
 cat > "$TARGET_DIR/home/floatos/.xinitrc" <<'EOF'
 #!/bin/sh
-xsetroot -solid "#080b0a"
-feh --bg-fill /usr/share/backgrounds/floatos/floatos-wallpaper.ppm
-xcompmgr -c -t-5 -l-5 -r8 -o 0.24 &
-# A slim status strip and a bottom app launcher.
-matchbox-panel --orientation north --size 32 --default-apps "mb-applet-menu-launcher,mb-applet-clock" --no-session &
-matchbox-panel --orientation south --size 58 --margin-start +500 --margin-end +500 --default-apps "mb-applet-menu-launcher,mb-applet-clock" --no-session &
-pcmanfm --desktop --profile=FloatOS &
-exec openbox-session
+xsetroot -solid "#070b08"
+feh --bg-fill /usr/share/backgrounds/floatos/floatos-wallpaper.svg
+xcompmgr -c -f -D 4 &
+openbox-session &
+sleep 0.5
+exec floatos-shell
 EOF
 chmod 0755 "$TARGET_DIR/home/floatos/.xinitrc"
 
@@ -99,6 +97,7 @@ cat > "$TARGET_DIR/etc/xdg/openbox/rc.xml" <<'EOF'
   </desktops>
   <resize><drawContents>yes</drawContents></resize>
   <keyboard>
+    <keybind key="W-space"><action name="Execute"><command>floatos-shell --toggle-launcher</command></action></keybind>
     <keybind key="W-Return"><action name="Execute"><command>xterm</command></action></keybind>
     <keybind key="W-e"><action name="Execute"><command>pcmanfm</command></action></keybind>
     <keybind key="W-d"><action name="ToggleShowDesktop"/></keybind>
