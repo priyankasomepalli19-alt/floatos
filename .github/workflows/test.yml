@@ -3,7 +3,7 @@ name: Validate FloatOS (no ISO)
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, desktop-shell]
     paths:
       - ".github/workflows/test.yml"
       - "external.desc"
@@ -11,6 +11,7 @@ on:
       - "Config.in"
       - "configs/**"
       - "board/floatos/**"
+      - "package/floatos-shell/**"
 
 permissions:
   contents: read
@@ -19,7 +20,7 @@ jobs:
   validate:
     name: Source and Buildroot configuration tests
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 90
 
     steps:
       - name: Check out FloatOS source
@@ -42,6 +43,11 @@ jobs:
             board/floatos/grub.cfg
             board/floatos/grub-pc.cfg
             board/floatos/grub-efi.cfg
+            package/floatos-shell/Config.in
+            package/floatos-shell/floatos-shell.mk
+            package/floatos-shell/src/Makefile
+            package/floatos-shell/src/floatos-shell.c
+            board/floatos/overlay/usr/share/floatos/theme.css
           )
           for file in "${required[@]}"; do
             test -s "$file" || { echo "::error::Missing or empty file: $file"; exit 1; }
@@ -71,6 +77,9 @@ jobs:
             'BR2_PACKAGE_OPENBOX=y'
             'BR2_PACKAGE_XSERVER_XORG_SERVER=y'
             'BR2_PACKAGE_PCMANFM=y'
+            'BR2_PACKAGE_LIBGTK3=y'
+            'BR2_PACKAGE_LIBGTK3_X11=y'
+            'BR2_PACKAGE_FLOATOS_SHELL=y'
           )
           for setting in "${required[@]}"; do
             grep -Fqx "$setting" "$CONFIG" || {
@@ -99,7 +108,7 @@ jobs:
           make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$RUNNER_TEMP/floatos-test-output" floatos_x86_64_defconfig
           make -C buildroot-src O="$RUNNER_TEMP/floatos-test-output" olddefconfig
           CONFIG="$RUNNER_TEMP/floatos-test-output/.config"
-          for option in BR2_x86_64 BR2_PER_PACKAGE_DIRECTORIES BR2_LINUX_KERNEL BR2_TARGET_ROOTFS_ISO9660 BR2_TARGET_ROOTFS_ISO9660_GRUB2 BR2_PACKAGE_OPENBOX BR2_PACKAGE_XSERVER_XORG_SERVER BR2_PACKAGE_PCMANFM; do
+          for option in BR2_x86_64 BR2_PER_PACKAGE_DIRECTORIES BR2_LINUX_KERNEL BR2_TARGET_ROOTFS_ISO9660 BR2_TARGET_ROOTFS_ISO9660_GRUB2 BR2_PACKAGE_OPENBOX BR2_PACKAGE_XSERVER_XORG_SERVER BR2_PACKAGE_PCMANFM BR2_PACKAGE_LIBGTK3 BR2_PACKAGE_LIBGTK3_X11 BR2_PACKAGE_FLOATOS_SHELL; do
             grep -q "^$option=y$" "$CONFIG" || {
               echo "::error::Buildroot disabled required option: $option"
               exit 1
@@ -122,6 +131,19 @@ jobs:
           make -C buildroot-src BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$RUNNER_TEMP/floatos-test-output" BR2_DL_DIR="$HOME/.buildroot-dl" pcmanfm-patch
           echo "PCManFM patches applied successfully."
 
+      - name: Compile FloatOS desktop shell only (no kernel or ISO)
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.buildroot-dl"
+          make -C buildroot-src -j2 \\
+            BR2_EXTERNAL="$GITHUB_WORKSPACE" \\
+            O="$RUNNER_TEMP/floatos-test-output" \\
+            BR2_DL_DIR="$HOME/.buildroot-dl" \\
+            floatos-shell
+          test -x "$RUNNER_TEMP/floatos-test-output/target/usr/bin/floatos-shell"
+          file "$RUNNER_TEMP/floatos-test-output/target/usr/bin/floatos-shell"
+          echo "Native FloatOS shell and its GTK3 dependencies compiled successfully."
+
       - name: Test summary
         run: |
           {
@@ -131,6 +153,7 @@ jobs:
             echo "- Shell script syntax: checked"
             echo "- Buildroot 2026.08.1 configuration: normalized successfully"
             echo "- PCManFM patches: applied successfully"
+            echo "- FloatOS GTK3 desktop shell: compiled as a standalone Buildroot target"
             echo ""
-            echo "**No full operating-system compilation was run. No ISO was created.**"
+            echo "**No kernel/root filesystem image build was run. No ISO was created.**"
           } >> "$GITHUB_STEP_SUMMARY"
