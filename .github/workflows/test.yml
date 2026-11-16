@@ -135,11 +135,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.buildroot-dl"
-          make -C buildroot-src -j2 \\
-            BR2_EXTERNAL="$GITHUB_WORKSPACE" \\
-            O="$RUNNER_TEMP/floatos-test-output" \\
-            BR2_DL_DIR="$HOME/.buildroot-dl" \\
-            floatos-shell
+          make -C buildroot-src -j2 BR2_EXTERNAL="$GITHUB_WORKSPACE" O="$RUNNER_TEMP/floatos-test-output" BR2_DL_DIR="$HOME/.buildroot-dl" floatos-shell
           test -x "$RUNNER_TEMP/floatos-test-output/target/usr/bin/floatos-shell"
           file "$RUNNER_TEMP/floatos-test-output/target/usr/bin/floatos-shell"
           echo "Native FloatOS shell and its GTK3 dependencies compiled successfully."
