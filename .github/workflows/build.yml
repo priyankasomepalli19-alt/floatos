@@ -47,7 +47,7 @@ jobs:
           df -h /
 
       - name: Cache Buildroot downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.buildroot-dl
           key: buildroot-2026.08.1-${{ runner.os }}-${{ hashFiles('configs/**', 'board/floatos/**') }}
@@ -55,7 +55,7 @@ jobs:
             buildroot-2026.08.1-${{ runner.os }}-
 
       - name: Restore Buildroot compiler cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.buildroot-ccache
           key: floatos-ccache-v1-${{ runner.os }}-${{ hashFiles('configs/**', 'board/floatos/patches/**') }}-${{ github.run_id }}
