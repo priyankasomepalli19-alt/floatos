@@ -8,10 +8,10 @@ The first bootable development image includes:
 
 - Linux 6.18.55 kernel for x86-64 PCs.
 - A Buildroot-generated userspace using BusyBox init and glibc.
-- X.Org, Openbox, PCManFM file manager and Xterm.
+- X.Org, Openbox and a native GTK3-powered FloatOS desktop shell, with PCManFM and Xterm as system apps.
 - FloatOS charcoal, white and lime-green (#A6FF4D) visual identity.
 - FloatOS boot menu, orbital charcoal/lime wallpaper, and circular FloatOS application icon.
-- Top status panel and a centered bottom launcher panel.
+- Animated FloatOS app launcher, centered floating dock, top status bar, quick settings and animated settings pages.
 - AMD Radeon graphics firmware and Realtek 8822CE rtw88 Wi-Fi firmware.
 - ConnMan for Ethernet and Wi-Fi management, with a desktop Network Settings shortcut.
 - A live desktop that starts automatically after boot.
@@ -66,4 +66,5 @@ make BR2_EXTERNAL="$PWD" O="$PWD/output"
 
 - `configs/`: FloatOS Buildroot configuration.
 - `board/floatos/`: bootloader, kernel fragment, users and root filesystem setup.
+- `package/floatos-shell/`: FloatOS's native desktop shell and GTK theme.
 - `.github/workflows/build.yml`: source build and ISO publishing pipeline.
