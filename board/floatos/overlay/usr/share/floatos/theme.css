@@ -1,0 +1,264 @@
+* {
+  outline-width: 0;
+  -GtkWidget-focus-line-width: 0;
+  font-family: "Sans";
+}
+
+window {
+  color: #eef4ee;
+  background-color: #101612;
+}
+
+.top-panel {
+  background-color: rgba(7, 12, 9, 0.94);
+  border-bottom: 1px solid rgba(166, 255, 77, 0.22);
+}
+
+.top-panel button,
+.floating-dock button {
+  color: #eef4ee;
+  background-image: none;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.top-panel button:hover,
+.floating-dock button:hover {
+  color: #a6ff4d;
+  background-color: rgba(166, 255, 77, 0.13);
+}
+
+.top-panel button:active,
+.floating-dock button:active {
+  background-color: rgba(166, 255, 77, 0.24);
+}
+
+.brand-button {
+  padding: 2px 10px 2px 2px;
+  border-radius: 12px;
+}
+
+.brand-mark,
+.brand-mark-large {
+  color: #081007;
+  background-image: linear-gradient(135deg, #c4ff7a, #8de83c);
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 900;
+  padding: 4px 11px;
+}
+
+.brand-mark-large {
+  font-size: 26px;
+  padding: 7px 15px;
+  border-radius: 14px;
+}
+
+.brand-name {
+  color: #f4f8f3;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.status-button {
+  padding: 4px 10px;
+  border-radius: 10px;
+}
+
+.status-text {
+  color: #aab7ac;
+  font-size: 11px;
+}
+
+.clock-text {
+  color: #f4f8f3;
+  font-size: 12px;
+  font-weight: 700;
+  padding-left: 8px;
+}
+
+.floating-dock {
+  background-color: rgba(12, 18, 14, 0.94);
+  border: 1px solid rgba(166, 255, 77, 0.24);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.48);
+}
+
+.dock-button {
+  min-width: 56px;
+  min-height: 54px;
+  padding: 8px;
+  border-radius: 16px;
+}
+
+.dock-button:hover {
+  background-color: rgba(166, 255, 77, 0.17);
+}
+
+.launcher-popover,
+.quick-popover {
+  background-color: rgba(13, 19, 15, 0.98);
+  border: 1px solid rgba(166, 255, 77, 0.26);
+  border-radius: 18px;
+  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.62);
+}
+
+.launcher-content {
+  min-width: 510px;
+}
+
+.launcher-title {
+  color: #f5f8f4;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.launcher-subtitle {
+  color: #93a092;
+  font-size: 11px;
+}
+
+.launcher-search {
+  color: #f4f8f3;
+  background-color: #1a241c;
+  border: 1px solid #344235;
+  border-radius: 12px;
+  padding: 9px 12px;
+  caret-color: #a6ff4d;
+}
+
+.launcher-search:focus {
+  border-color: #a6ff4d;
+  box-shadow: 0 0 0 2px rgba(166, 255, 77, 0.15);
+}
+
+.app-tile {
+  color: #e8efe7;
+  background-color: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 15px;
+  padding: 9px;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.app-tile:hover {
+  color: #ffffff;
+  background-color: rgba(166, 255, 77, 0.12);
+  border-color: rgba(166, 255, 77, 0.48);
+}
+
+.app-tile-label {
+  color: #dce6dc;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.quick-title {
+  color: #f4f8f3;
+  font-size: 16px;
+  font-weight: 800;
+  padding: 2px 0 5px;
+}
+
+.quick-tile {
+  color: #eaf1e9;
+  background-color: #1b251d;
+  border: 1px solid #303d32;
+  border-radius: 12px;
+  padding: 10px;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.quick-tile:hover {
+  background-color: rgba(166, 255, 77, 0.15);
+  border-color: rgba(166, 255, 77, 0.52);
+}
+
+.settings-root {
+  background-color: #111813;
+}
+
+.settings-sidebar {
+  background-color: #0b110d;
+  border-right: 1px solid #263129;
+}
+
+.settings-nav {
+  color: #bbc7bc;
+  background-color: transparent;
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.settings-nav:hover,
+.settings-nav:focus {
+  color: #a6ff4d;
+  background-color: rgba(166, 255, 77, 0.11);
+}
+
+.settings-stack {
+  background-color: #111813;
+}
+
+.page-title {
+  color: #f4f8f3;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.page-description {
+  color: #9eaa9f;
+  font-size: 12px;
+}
+
+.setting-action {
+  color: #eaf1e9;
+  background-color: #1a241c;
+  border: 1px solid #303d32;
+  border-radius: 14px;
+  padding: 16px;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.setting-action:hover {
+  background-color: rgba(166, 255, 77, 0.10);
+  border-color: rgba(166, 255, 77, 0.50);
+}
+
+.action-title {
+  color: #f2f7f1;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.action-detail {
+  color: #98a79a;
+  font-size: 11px;
+}
+
+headerbar {
+  color: #eff5ee;
+  background-color: #0c130e;
+  border-bottom: 1px solid #29352b;
+}
+
+headerbar button {
+  color: #eaf2e8;
+  background-color: transparent;
+  border-radius: 9px;
+}
+
+headerbar button:hover {
+  color: #a6ff4d;
+  background-color: rgba(166, 255, 77, 0.11);
+}
+
+dialog {
+  color: #eff5ee;
+  background-color: #121a14;
+}
