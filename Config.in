@@ -1,1 +1,2 @@
 # FloatOS external Buildroot tree.
+source "$BR2_EXTERNAL_FLOATOS_PATH/package/floatos-shell/Config.in"
